@@ -1,0 +1,98 @@
+description: Heat template to deploy maestro on a VM
+heat_template_version: '2013-05-23'
+outputs:
+  OpenStack_Image_-_Linux_x86.11423101712974_EIP:
+    description: Floating IP of OpenStack_Image_-_Linux_x86.11423101712974 instance
+    value:
+      get_attr: [floating_ip, floating_ip_address]
+  OpenStack_Image_-_Linux_x86.11423101712974_IP:
+    description: IP of OpenStack_Image_-_Linux_x86.11423101712974 instance
+    value:
+      get_attr: [OpenStack_Image_-_Linux_x86.11423101712974-Default_add_NIC_in_Openstack,
+        fixed_ips, 0, ip_address]
+parameters:
+  BaseUrl: {default: 'http://9.125.70.23/heat_iwd/', description: Base URL for getting
+      maestro, type: string}
+  IWD_CLOUD: {default: n/a, description: IWD cloud being used - used only for correlation
+      with IWD, type: string}
+  IWD_ENVIRONMENT_PROFILE: {default: n/a, description: IWD env profile being used
+      - used only for correlation with IWD, type: string}
+  IWD_IP_GROUP: {default: n/a, description: IWD ip group being used - used only for
+      correlation with IWD, type: string}
+  MAESTRO_AGENT_TOKEN: {description: MAESTRO_AGENT_TOKEN, type: string}
+  MAESTRO_BOOTSTRAP_URL: {description: MAESTRO_BOOTSTRAP_URL, type: string}
+  MAESTRO_DEPLOYMENT_URL: {description: MAESTRO_DEPLOYMENT_URL, type: string}
+  MAESTRO_KERNELSERVICE_URL: {default: 'https://127.0.0.1:9443/', description: MAESTRO_KERNELSERVICE_URL,
+    type: string}
+  MAESTRO_LAUNCHED_BY: {default: Deployer, description: MAESTRO_LAUNCHED_BY, type: string}
+  MAESTRO_PUBLIC_KEY: {description: MAESTRO_PUBLIC_KEY, type: string}
+  MAESTRO_PURESCALE_APPLIANCE_IPS: {description: MAESTRO_PURESCALE_APPLIANCE_IPS,
+    type: string}
+  MAESTRO_SIGNER_PRIVATE_KEY: {description: MAESTRO_SIGNER_PRIVATE_KEY, type: string}
+  USER_DATA_TEMPLATE: {default: "#!/bin/bash -v\n\necho \">>>> add root user ...\"\
+      \nmkdir -p /var/run/sshd\necho 'root:passw0rd' |chpasswd     \nsed -i -e 's/PasswordAuthentication\
+      \ no/PasswordAuthentication yes/g' /etc/ssh/sshd_config\nsed -i -e 's/PermitRootLogin\
+      \ without-password/#PermitRootLogin without-password/g' /etc/ssh/sshd_config\
+      \      \nservice sshd restart\n     \necho \">>>> INSTALL IBM JDK ...\"\nmkdir\
+      \ -p /opt/IBM\ncd /opt/IBM\ncurl $BaseUrl/ibm-java-sdk-7.0-6.1-linux-x86_64.tgz\
+      \ -o ibm-java-sdk-7.0-6.1-linux-x86_64.tgz\ntar xvzf ibm-java-sdk-7.0-6.1-linux-x86_64.tgz\n\
+      rm -f ibm-java-sdk-7.0-6.1-linux-x86_64.tgz\necho \"export JAVA_HOME=/opt/IBM/ibm-java-x86_64-70\"\
+      \ >> /etc/profile\necho \"export PATH=\\$PATH:\\$JAVA_HOME/bin\" >> /etc/profile\n\
+      ln /opt/IBM/ibm-java-x86_64-70/ -s /opt/IBM/ibm-java-i386-60\n\necho \">>>>\
+      \ CONFIGURE PYTHON ...\"\nmkdir -p /opt/python-2.6.4/bin\nln -s /usr/bin/python\
+      \ /opt/python-2.6.4/bin/python\n\necho \">>>> INSTALL MAESTRO ...\"\nmkdir -p\
+      \ /tmp/maestro\ncd /tmp/maestro\ncurl $BaseUrl/maestro.zip -o maestro.zip\n\
+      unzip maestro.zip\nchmod +x maestro.sh   \n\necho \">>>> EXPORT MAESTRO PROPERTIES\
+      \ ...\"\nexport MAESTRO_PURESCALE_APPLIANCE_IPS=$MAESTRO_PURESCALE_APPLIANCE_IPS\n\
+      export MAESTRO_SIGNER_PRIVATE_KEY=$MAESTRO_SIGNER_PRIVATE_KEY\nexport MAESTRO_PUBLIC_KEY=$MAESTRO_PUBLIC_KEY\n\
+      export MAESTRO_LAUNCHED_BY=$MAESTRO_LAUNCHED_BY\nexport MAESTRO_KERNELSERVICE_URL=$MAESTRO_KERNELSERVICE_URL\n\
+      export MAESTRO_BOOTSTRAP_URL=$MAESTRO_BOOTSTRAP_URL\nexport MAESTRO_DEPLOYMENT_URL=$MAESTRO_DEPLOYMENT_URL\n\
+      export MAESTRO_AGENT_TOKEN=$MAESTRO_AGENT_TOKEN\nexport MAESTRO_SERVER_NAME=$MAESTRO_SERVER_NAME\n\
+      \necho \">>>> START MAESTRO ...\"\n./maestro.sh >> /tmp/maestro/maestro.log\
+      \ 2>&1\n", type: string}
+resources:
+  OpenStack_Image_-_Linux_x86.11423101712974:
+    properties:
+      admin_pass: Passw0rd
+      flavor: m1.small
+      image: CentOS-6.5-20140219-0.1.4-x86_64_sda-cloud-init
+      key_name: heat_key
+      networks:
+      - port: {get_resource: OpenStack_Image_-_Linux_x86.11423101712974-Default_add_NIC_in_Openstack}
+      - port: {get_resource: OpenStack_Image_-_Linux_x86.11423101712974-Default_add_NIC_in_Openstack_1}
+      user_data:
+        str_replace:
+          params:
+            $BaseUrl: {get_param: BaseUrl}
+            $IWD_CLOUD: {get_param: IWD_CLOUD}
+            $IWD_ENVIRONMENT_PROFILE: {get_param: IWD_ENVIRONMENT_PROFILE}
+            $IWD_IP_GROUP: {get_param: IWD_IP_GROUP}
+            $MAESTRO_AGENT_TOKEN: {get_param: MAESTRO_AGENT_TOKEN}
+            $MAESTRO_BOOTSTRAP_URL: {get_param: MAESTRO_BOOTSTRAP_URL}
+            $MAESTRO_DEPLOYMENT_URL: {get_param: MAESTRO_DEPLOYMENT_URL}
+            $MAESTRO_KERNELSERVICE_URL: {get_param: MAESTRO_KERNELSERVICE_URL}
+            $MAESTRO_LAUNCHED_BY: {get_param: MAESTRO_LAUNCHED_BY}
+            $MAESTRO_PUBLIC_KEY: {get_param: MAESTRO_PUBLIC_KEY}
+            $MAESTRO_PURESCALE_APPLIANCE_IPS: {get_param: MAESTRO_PURESCALE_APPLIANCE_IPS}
+            $MAESTRO_SERVER_NAME: OpenStack_Image_-_Linux_x86.11423101712974
+            $MAESTRO_SIGNER_PRIVATE_KEY: {get_param: MAESTRO_SIGNER_PRIVATE_KEY}
+          template: {get_param: USER_DATA_TEMPLATE}
+    type: OS::Nova::Server
+  OpenStack_Image_-_Linux_x86.11423101712974-Default_add_NIC_in_Openstack:
+    properties:
+      fixed_ips:
+      - {subnet: net01-subnet01}
+      network: net01
+    type: OS::Neutron::Port
+  OpenStack_Image_-_Linux_x86.11423101712974-Default_add_NIC_in_Openstack_1:
+    properties:
+      fixed_ips:
+      - {subnet: net02-subnet01}
+      network: net02
+    type: OS::Neutron::Port
+  floating_ip:
+    properties:
+      floating_network: public
+      port_id: {get_resource: OpenStack_Image_-_Linux_x86.11423101712974-Default_add_NIC_in_Openstack}
+    type: OS::Neutron::FloatingIP
+

@@ -1,0 +1,61 @@
+description: Heat template to deploy maestro on a VM
+heat_template_version: '2013-05-23'
+outputs:
+  Node.1_EIP:
+    description: Floating IP of Node.1 instance
+    value:
+      get_attr: [floating_ip, floating_ip_address]
+  Node.1_IP:
+    description: IP of Node.1 instance
+    value:
+      get_attr: [Node.1-Default_add_NIC_in_Openstack,
+        fixed_ips, 0, ip_address]
+parameters:
+  BaseUrl: {default: 'http://9.125.70.23/heat_iwd/', description: Base URL for getting  maestro, type: string}
+
+  USER_DATA_TEMPLATE: {default: "#!/bin/bash -v\n\necho \">>>> add root user ...\"\
+      \nmkdir -p /var/run/sshd\necho 'root:passw0rd' |chpasswd     \nsed -i -e 's/PasswordAuthentication\
+      \ no/PasswordAuthentication yes/g' /etc/ssh/sshd_config\nsed -i -e 's/PermitRootLogin\
+      \ without-password/#PermitRootLogin without-password/g' /etc/ssh/sshd_config\
+      \      \nservice sshd restart\n     \necho \">>>> INSTALL IBM JDK ...\"\nmkdir\
+      \ -p /opt/IBM\ncd /opt/IBM\ncurl $BaseUrl/ibm-java-sdk-7.0-6.1-linux-x86_64.tgz\
+      \ -o ibm-java-sdk-7.0-6.1-linux-x86_64.tgz\ntar xvzf ibm-java-sdk-7.0-6.1-linux-x86_64.tgz\n\
+      rm -f ibm-java-sdk-7.0-6.1-linux-x86_64.tgz\necho \"export JAVA_HOME=/opt/IBM/ibm-java-x86_64-70\"\
+      \ >> /etc/profile\necho \"export PATH=\\$PATH:\\$JAVA_HOME/bin\" >> /etc/profile\n\
+      ln /opt/IBM/ibm-java-x86_64-70/ -s /opt/IBM/ibm-java-i386-60\n\necho \">>>>\
+      \ CONFIGURE PYTHON ...\"\nmkdir -p /opt/python-2.6.4/bin\nln -s /usr/bin/python\
+      \ 2>&1\n", type: string}
+resources:
+  Node.1:
+    properties:
+      admin_pass: Passw0rd
+      flavor: m1.small
+      image: CentOS-6.5-20140219-0.1.4-x86_64_sda-cloud-init
+      key_name: heat_key
+      networks:
+      - port: {get_resource: Node.1-Default_add_NIC_in_Openstack}
+      - port: {get_resource: Node.1-Default_add_NIC_in_Openstack_1}
+      user_data:
+        str_replace:
+          params:
+            $BaseUrl: {get_param: BaseUrl}
+          template: {get_param: USER_DATA_TEMPLATE}
+    type: OS::Nova::Server
+  Node.1-Default_add_NIC_in_Openstack:
+    properties:
+      fixed_ips:
+      - {subnet: net01-subnet01}
+      network: net01
+    type: OS::Neutron::Port
+  Node.1-Default_add_NIC_in_Openstack_1:
+    properties:
+      fixed_ips:
+      - {subnet: net02-subnet01}
+      network: net02
+    type: OS::Neutron::Port
+  floating_ip:
+    properties:
+      floating_network: public
+      port_id: {get_resource: Node.1-Default_add_NIC_in_Openstack}
+    type: OS::Neutron::FloatingIP
+

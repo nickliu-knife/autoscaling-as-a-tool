@@ -1,0 +1,463 @@
+{
+    "parameters": {
+        "MAESTRO_PURESCALE_APPLIANCE_IPS": "172.16.65.122,",
+        "MAESTRO_DEPLOYMENT_URL": "https://127.0.0.1:9444/storehouse/user/deployments/d-0bcdbfc7-b5f2-4d86-8cde-29b63ac7bad1",
+        "IWD_IP_GROUP": "/resources/ipGroups/1",
+        "OS::stack_id": "f6ae463e-bc8a-4ade-896d-696f1bc39477",
+        "OS::stack_name": "d-0bcdbfc7-b5f2-4d86-8cde-29b63ac7bad1",
+        "MAESTRO_AGENT_TOKEN": "eyJhdHRyaWJ1dGVzIjoie1wib3duZXJQcm9jZXNzVHlwZUlEXCI6XCJBR0VOVFwiLFwidXNlcklEXCI6XCJkLTBiY2RiZmM3LWI1ZjItNGQ4Ni04Y2RlLTI5YjYzYWM3YmFkMVwiLFwiYXV0aG9yaXphdGlvbkF0dHJpYnV0ZXNcIjp7XCJyb2xlc1wiOltcIjEyXCJdfSxcImlzc3VlclByb2Nlc3NUeXBlSURcIjpcIkFETUlOXCIsXCJvd25lclB1YmxpY0tleVwiOlwiQUdFTlRcIixcImlzc3VlclB1YmxpY0tleVwiOlwiQURNSU5cIixcImRlcGxveW1lbnRJRFwiOlwiZC0wYmNkYmZjNy1iNWYyLTRkODYtOGNkZS0yOWI2M2FjN2JhZDFcIixcInR5cGVcIjpcImFnZW50XCJ9Iiwic2lnbmF0dXJlIjoiZ1J0RzQ1aFBiVVFQZis5S1lBZys4OXNRNDRFWndEcDlZYXU3NXFlWXh2MllwNm1CdlRwXC9xS2toUm9PVHZZS3EzREtXc1N3TkVKbDYxT0FZeXJJbENmMmJkN3lIelVmZU1PWkVDakpLZndJWk5tdytEMXJudVVRVXlTdEk0TStqbmxsU3VoZU1JQ3FVdWdyVm9LZDRLTzF5YVpHMzVTT1BwcVN3eWlGdmJVclRjdGZHN0V6RWVCcXlGTmNQVU50OEZmTnY1MEdlTFNQMEYxOW9hMWZYVHdUd1I3NXpBS1IxTTJ3Uzh3S0VZWnBqUlF0ZVwvajJEVktDVGpRS1NZb2VsaTRZdjFcL0dhYVI2MTBlK3BHMEdpa1BIbklOODh6aU81XC9iaVNnV2ZHZUcwUzE1THU1U2pLMU10c2NRXC9zRjFQYzRrb3ZPNFZ1VDdQcGtaYnVNeVB5SkE9PSJ9",
+        "MAESTRO_KERNELSERVICE_URL": "https://IBMWorkloadDeployer:9443/",
+        "USER_DATA_TEMPLATE": "#!/bin/bash -v\n\necho \">>>> add root user ...\"\nmkdir -p /var/run/sshd\necho 'root:passw0rd' |chpasswd     \nsed -i -e 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config\nsed -i -e 's/PermitRootLogin without-password/#PermitRootLogin without-password/g' /etc/ssh/sshd_config      \nservice sshd restart\n     \necho \">>>> INSTALL IBM JDK ...\"\nmkdir -p /opt/IBM\ncd /opt/IBM\ncurl $BaseUrl/ibm-java-sdk-7.0-6.1-linux-x86_64.tgz -o ibm-java-sdk-7.0-6.1-linux-x86_64.tgz\ntar xvzf ibm-java-sdk-7.0-6.1-linux-x86_64.tgz\nrm -f ibm-java-sdk-7.0-6.1-linux-x86_64.tgz\necho \"export JAVA_HOME=/opt/IBM/ibm-java-x86_64-70\" >> /etc/profile\necho \"export PATH=\\$PATH:\\$JAVA_HOME/bin\" >> /etc/profile\nln /opt/IBM/ibm-java-x86_64-70/ -s /opt/IBM/ibm-java-i386-60\n\necho \">>>> CONFIGURE PYTHON ...\"\nmkdir -p /opt/python-2.6.4/bin\nln -s /usr/bin/python /opt/python-2.6.4/bin/python\n\necho \">>>> INSTALL MAESTRO ...\"\nmkdir -p /tmp/maestro\ncd /tmp/maestro\ncurl $BaseUrl/maestro.zip -o maestro.zip\nunzip maestro.zip\nchmod +x maestro.sh   \n\necho \">>>> EXPORT MAESTRO PROPERTIES ...\"\nexport MAESTRO_PURESCALE_APPLIANCE_IPS=$MAESTRO_PURESCALE_APPLIANCE_IPS\nexport MAESTRO_SIGNER_PRIVATE_KEY=$MAESTRO_SIGNER_PRIVATE_KEY\nexport MAESTRO_PUBLIC_KEY=$MAESTRO_PUBLIC_KEY\nexport MAESTRO_LAUNCHED_BY=$MAESTRO_LAUNCHED_BY\nexport MAESTRO_KERNELSERVICE_URL=$MAESTRO_KERNELSERVICE_URL\nexport MAESTRO_BOOTSTRAP_URL=$MAESTRO_BOOTSTRAP_URL\nexport MAESTRO_DEPLOYMENT_URL=$MAESTRO_DEPLOYMENT_URL\nexport MAESTRO_AGENT_TOKEN=$MAESTRO_AGENT_TOKEN\nexport MAESTRO_SERVER_NAME=$MAESTRO_SERVER_NAME\n\necho \">>>> START MAESTRO ...\"\n./maestro.sh\n",
+        "MAESTRO_SIGNER_PRIVATE_KEY": "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCz19Npjrkq0qnAZjdvLsyemwJ3M8KujPWnaGZGx3jHLb84yiWUp3WtllQwcG39fInhlthKqgo7sAxJnjGeLbNx1GKWj+K4YdAivy58pFq/Fx1venRR6KebTfnCqBSUWUg6gHC0shyTrXI5K7U5iqNcc+gojyf/AtXSEIkGAzEIGtvoBw1TvXYRWCbWuRi85Cwm4keDVOUOZP31PmNJN07/TN4OvydMw1X8KrvqVNQXBx1khli21rP9RK3izQDkjzlIRp5Anfog9TAGZZket/gy4mxe1WlZVwy+Po/9kC1b2Kdt7NlVTi3r1XCWG1ODlHIFMzIImIMZejzdiOvnhTrtAgMBAAECggEANy6ZGwGFBYPAPF3g0oesl1n+xq6mJMLxuV1KTJt2Dr+Vtgoov9UmQY4n5PkKdsYY1JRhZ3+HRks9afVVSjDBp8LAQWyC54pzv8WjsPEJOysPiB4txNg7XWbupPDH58EBbZntezRPmmyU6L/linNkrsCN0qwiXJf1HdCfCq4+BDsccNUrP/1R84YHtbsp8k5Rtcb8sn1586gmh8ivhG5qjas/cpnPzH3pMSbLKYMLkLEQh0Y3oFzstKu+Q2wYaFw2pQx9OxQAhT1fL42AWyfuaakZ55nJazZSKrpKJQie4af8thuO6hQkbw3jbh+j+aF92nIC0LkPIU1H4QEz1Of3IQKBgQD41xh4STSgh1RzsSXsXemdXCtCxc43SdMhajg/vN7WdCje2QLaaTCBnTrjtNREyGZna//2/hALr6Ofj952Yx/p8A2rj2MI46HoPd5o/6mF74xnaXMDolb+Kdnz5q3gbC7dRNGMlcHsyzHn6T5QSATtwOUvjRsBYrzWXF29sYZAqQKBgQC5BIMIaq5995mPyL6tjiryWBRduKXmv5c+gYlzi8LFkAtf2ZaJR3YwkLA2g3Y7+dI0ZO3rzawzzDq6Y42tCbiMk1d8NsV+qTF2ZBzp950CYPqk/7m96Z7XVAIqXNd7B70PJYahoL0ydZYLxmZpte8hU0PSZvhYpypB84odZHPepQKBgQD02no6ihYdy2wfNvXRAovIipQK7SbAIoV8wM8+cHN44+3/cdwr3Audzn/O5fVlBSg2pf/FIzPYu+guLtvA9ELH560b3kidy5daNd6uxLsjjpZCf3Fr5wbgq3/KTndTeEAY/AmR4x5iCYM+5rSpPGSVKhSaWKd1Epor99FJwfAPmQKBgQCUmMcUz3ntuhsfnD9o7TIZChzxWQgF2AMFNMzMfIemXRaFmSCKiVanks20OsmPSgpGAnoEVV/lCjZw1NxJCfGrFfvBy8u6+vC7AZUnZLQ54OHt+2WW3jexAcvrcj2ulnyF2cHTtmG+USp9so82f+TbgyCJsCHuMfSCm7Nl//P/8QKBgG9pbw6nVZLRFbtIPra2EhnTB9iIGeY2S944MKAdR1YTJKMlgFR284gzB3JYwD1nNUsKKRB72vMeDnDYXuXbm745kOyB10z/uwIOPQdnEmiEllPd9q5BrcBnHzH56lrO+mAeKfceQwiWWRshyp+wxn/0fOj2aDHgwrMw3et8eKUW",
+        "MAESTRO_LAUNCHED_BY": "Deployer",
+        "MAESTRO_BOOTSTRAP_URL": "https://IBMWorkloadDeployer:9444/storehouse/admin/plugins/activator/2.1.0.0/activator/activator.zip,",
+        "MAESTRO_PUBLIC_KEY": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAj8wy6CIuG/MGDy7gKCXtx6eDiy/pL0K3xDBEacRVHUO/KfaJsnCcG14VNVgUZAQlGG6H9ys8mOaOyskIqocA+91OeNMHKXgwm8NvFhfnvK+VzwIpYtr1tp91cXCQGr8YxLxB3JnrJ2mCzAN9PZdd44eOT8db0RgpW0wjSRmqsSQ8TYkYIegubxnybSwLJZrjyRGh6HfP2KPptHqU0/UnSmChau2hQ4bpQrWi7JcWcU0fDpK1XVE+tRVx47w+WcZAMBoN0tfteDD3RUidRTDYxqfLIAQ1PFiDQXaKOBCPHTw5q78GecJ0lzOr5wJTBganQ7QoBxQoXxO4hF3TXlFCmwIDAQAB",
+        "IWD_CLOUD": "/resources/clouds/1",
+        "BaseUrl": "http://172.16.15.250/los/Heat/maestro_bootstrap",
+        "IWD_ENVIRONMENT_PROFILE": "/resources/environmentProfiles/1"
+    },
+    "template": {
+        "outputs": {
+            "WAS.11421306120484_EIP": {
+                "description": "Floating IP of WAS.11421306120484 instance",
+                "value": {
+                    "get_attr": [
+                        "WAS.11421306120484_EIP",
+                        "ip"
+                    ]
+                }
+            },
+            "WAS.11421306120484_IP": {
+                "description": "IP of WAS.11421306120484 instance",
+                "value": {
+                    "get_attr": [
+                        "WAS.11421306120484",
+                        "networks",
+                        "private",
+                        0
+                    ]
+                }
+            },
+            "DB2.11421306120483_IP": {
+                "description": "IP of DB2.11421306120483 instance",
+                "value": {
+                    "get_attr": [
+                        "DB2.11421306120483",
+                        "networks",
+                        "private",
+                        0
+                    ]
+                }
+            },
+            "WAS.11421313441283_IP": {
+                "description": "IP of WAS.11421313441283 instance",
+                "value": {
+                    "get_attr": [
+                        "WAS.11421313441283",
+                        "networks",
+                        "private",
+                        0
+                    ]
+                }
+            },
+            "WAS.11421313441283_EIP": {
+                "description": "Floating IP of  WAS.11421313441283 instance",
+                "value": {
+                    "get_attr": [
+                        "WAS.11421313441283_EIP",
+                        "ip"
+                    ]
+                }
+            },
+            "DB2.11421306120483_EIP": {
+                "description": "Floating IP of DB2.11421306120483 instance",
+                "value": {
+                    "get_attr": [
+                        "DB2.11421306120483_EIP",
+                        "ip"
+                    ]
+                }
+            }
+        },
+        "heat_template_version": "2013-05-23",
+        "description": "Heat template to deploy maestro on a VM",
+        "parameters": {
+            "MAESTRO_SIGNER_PRIVATE_KEY": {
+                "type": "string",
+                "description": "MAESTRO_SIGNER_PRIVATE_KEY"
+            },
+            "IWD_CLOUD": {
+                "default": "n/a",
+                "type": "string",
+                "description": "IWD cloud being used - used only for correlation with IWD"
+            },
+            "IWD_IP_GROUP": {
+                "default": "n/a",
+                "type": "string",
+                "description": "IWD ip group being used - used only for correlation with IWD"
+            },
+            "BaseUrl": {
+                "default": "http://172.16.15.250/los/Heat/maestro_bootstrap",
+                "type": "string",
+                "description": "Base URL for getting maestro"
+            },
+            "MAESTRO_AGENT_TOKEN": {
+                "type": "string",
+                "description": "MAESTRO_AGENT_TOKEN"
+            },
+            "MAESTRO_KERNELSERVICE_URL": {
+                "default": "https://127.0.0.1:9443/",
+                "type": "string",
+                "description": "MAESTRO_KERNELSERVICE_URL"
+            },
+            "MAESTRO_PUBLIC_KEY": {
+                "type": "string",
+                "description": "MAESTRO_PUBLIC_KEY"
+            },
+            "MAESTRO_PURESCALE_APPLIANCE_IPS": {
+                "type": "string",
+                "description": "MAESTRO_PURESCALE_APPLIANCE_IPS"
+            },
+            "MAESTRO_LAUNCHED_BY": {
+                "default": "Deployer",
+                "type": "string",
+                "description": "MAESTRO_LAUNCHED_BY"
+            },
+            "MAESTRO_BOOTSTRAP_URL": {
+                "type": "string",
+                "description": "MAESTRO_BOOTSTRAP_URL"
+            },
+            "USER_DATA_TEMPLATE": {
+                "default": "",
+                "type": "string"
+            },
+            "MAESTRO_DEPLOYMENT_URL": {
+                "type": "string",
+                "description": "MAESTRO_DEPLOYMENT_URL"
+            },
+            "IWD_ENVIRONMENT_PROFILE": {
+                "default": "n/a",
+                "type": "string",
+                "description": "IWD env profile being used - used only for correlation with IWD"
+            }
+        },
+        "resources": {
+            "DB2.11421306120483": {
+                "type": "OS::Nova::Server",
+                "properties": {
+                    "key_name": "heat_key",
+                    "flavor": "m1.medium",
+                    "user_data": {
+                        "str_replace": {
+                            "params": {
+                                "$MAESTRO_PUBLIC_KEY": {
+                                    "get_param": "MAESTRO_PUBLIC_KEY"
+                                },
+                                "$MAESTRO_AGENT_TOKEN": {
+                                    "get_param": "MAESTRO_AGENT_TOKEN"
+                                },
+                                "$IWD_ENVIRONMENT_PROFILE": {
+                                    "get_param": "IWD_ENVIRONMENT_PROFILE"
+                                },
+                                "$MAESTRO_DEPLOYMENT_URL": {
+                                    "get_param": "MAESTRO_DEPLOYMENT_URL"
+                                },
+                                "$BaseUrl": {
+                                    "get_param": "BaseUrl"
+                                },
+                                "$MAESTRO_SIGNER_PRIVATE_KEY": {
+                                    "get_param": "MAESTRO_SIGNER_PRIVATE_KEY"
+                                },
+                                "$IWD_CLOUD": {
+                                    "get_param": "IWD_CLOUD"
+                                },
+                                "$MAESTRO_KERNELSERVICE_URL": {
+                                    "get_param": "MAESTRO_KERNELSERVICE_URL"
+                                },
+                                "$MAESTRO_SERVER_NAME": "DB2.11421306120483",
+                                "$MAESTRO_LAUNCHED_BY": {
+                                    "get_param": "MAESTRO_LAUNCHED_BY"
+                                },
+                                "$MAESTRO_BOOTSTRAP_URL": {
+                                    "get_param": "MAESTRO_BOOTSTRAP_URL"
+                                },
+                                "$MAESTRO_PURESCALE_APPLIANCE_IPS": {
+                                    "get_param": "MAESTRO_PURESCALE_APPLIANCE_IPS"
+                                },
+                                "$IWD_IP_GROUP": {
+                                    "get_param": "IWD_IP_GROUP"
+                                }
+                            },
+                            "template": {
+                                "get_param": "USER_DATA_TEMPLATE"
+                            }
+                        }
+                    },
+                    "image": "CentOS-6.5-20140219-0.1.4-x86_64_sda-cloud-init",
+                    "admin_pass": "Passw0rd"
+                }
+            },
+            "DB2.11421306120483-Default_add_disk": {
+                "type": "OS::Cinder::Volume",
+                "properties": {
+                    "size": 1
+                }
+            },
+            "WAS.11421306120484": {
+                "type": "OS::Nova::Server",
+                "properties": {
+                    "admin_pass": "Passw0rd",
+                    "key_name": "heat_key",
+                    "image": "CentOS-6.5-20140219-0.1.4-x86_64_sda-cloud-init",
+                    "user_data": {
+                        "str_replace": {
+                            "params": {
+                                "$MAESTRO_PUBLIC_KEY": {
+                                    "get_param": "MAESTRO_PUBLIC_KEY"
+                                },
+                                "$MAESTRO_AGENT_TOKEN": {
+                                    "get_param": "MAESTRO_AGENT_TOKEN"
+                                },
+                                "$IWD_ENVIRONMENT_PROFILE": {
+                                    "get_param": "IWD_ENVIRONMENT_PROFILE"
+                                },
+                                "$MAESTRO_DEPLOYMENT_URL": {
+                                    "get_param": "MAESTRO_DEPLOYMENT_URL"
+                                },
+                                "$BaseUrl": {
+                                    "get_param": "BaseUrl"
+                                },
+                                "$MAESTRO_SIGNER_PRIVATE_KEY": {
+                                    "get_param": "MAESTRO_SIGNER_PRIVATE_KEY"
+                                },
+                                "$IWD_CLOUD": {
+                                    "get_param": "IWD_CLOUD"
+                                },
+                                "$MAESTRO_KERNELSERVICE_URL": {
+                                    "get_param": "MAESTRO_KERNELSERVICE_URL"
+                                },
+                                "$MAESTRO_SERVER_NAME": "WAS.11421306120484",
+                                "$MAESTRO_LAUNCHED_BY": {
+                                    "get_param": "MAESTRO_LAUNCHED_BY"
+                                },
+                                "$MAESTRO_BOOTSTRAP_URL": {
+                                    "get_param": "MAESTRO_BOOTSTRAP_URL"
+                                },
+                                "$MAESTRO_PURESCALE_APPLIANCE_IPS": {
+                                    "get_param": "MAESTRO_PURESCALE_APPLIANCE_IPS"
+                                },
+                                "$IWD_IP_GROUP": {
+                                    "get_param": "IWD_IP_GROUP"
+                                }
+                            },
+                            "template": {
+                                "get_param": "USER_DATA_TEMPLATE"
+                            }
+                        }
+                    },
+                    "flavor": "m1.small",
+                    "scheduler_hints": {
+                        "group": {
+                            "get_resource": "WAS"
+                        }
+                    }
+                }
+            },
+            "WAS.11421306120484_EIP": {
+                "type": "OS::Nova::FloatingIP"
+            },
+            "WAS.1422945257": {
+                "type": "OS::Nova::Server",
+                "properties": {
+                    "admin_pass": "Passw0rd",
+                    "key_name": "heat_key",
+                    "image": "CentOS-6.5-20140219-0.1.4-x86_64_sda-cloud-init",
+                    "user_data": {
+                        "str_replace": {
+                            "params": {
+                                "$MAESTRO_PUBLIC_KEY": {
+                                    "get_param": "MAESTRO_PUBLIC_KEY"
+                                },
+                                "$MAESTRO_SIGNER_PRIVATE_KEY": {
+                                    "get_param": "MAESTRO_SIGNER_PRIVATE_KEY"
+                                },
+                                "$MAESTRO_LAUNCHED_BY": {
+                                    "get_param": "MAESTRO_LAUNCHED_BY"
+                                },
+                                "$IWD_IP_GROUP": {
+                                    "get_param": "IWD_IP_GROUP"
+                                },
+                                "$MAESTRO_AGENT_TOKEN": {
+                                    "get_param": "MAESTRO_AGENT_TOKEN"
+                                },
+                                "$IWD_ENVIRONMENT_PROFILE": {
+                                    "get_param": "IWD_ENVIRONMENT_PROFILE"
+                                },
+                                "$MAESTRO_DEPLOYMENT_URL": {
+                                    "get_param": "MAESTRO_DEPLOYMENT_URL"
+                                },
+                                "$BaseUrl": {
+                                    "get_param": "BaseUrl"
+                                },
+                                "$IWD_CLOUD": {
+                                    "get_param": "IWD_CLOUD"
+                                },
+                                "$MAESTRO_KERNELSERVICE_URL": {
+                                    "get_param": "MAESTRO_KERNELSERVICE_URL"
+                                },
+                                "$MAESTRO_SERVER_NAME": "WAS.1422945257",
+                                "$MAESTRO_BOOTSTRAP_URL": {
+                                    "get_param": "MAESTRO_BOOTSTRAP_URL"
+                                },
+                                "$MAESTRO_PURESCALE_APPLIANCE_IPS": {
+                                    "get_param": "MAESTRO_PURESCALE_APPLIANCE_IPS"
+                                }
+                            },
+                            "template": {
+                                "get_param": "USER_DATA_TEMPLATE"
+                            }
+                        }
+                    },
+                    "flavor": "m1.small",
+                    "scheduler_hints": {
+                        "group": {
+                            "get_resource": "WAS"
+                        }
+                    }
+                }
+            },
+            "WAS": {
+                "type": "OS::Nova::ServerGroup",
+                "properties": {
+                    "policies": [
+                        "affinity"
+                    ]
+                }
+            },
+            "DB2.11421306120483-Default_add_disk_ATTACHMENT": {
+                "type": "OS::Cinder::VolumeAttachment",
+                "properties": {
+                    "instance_uuid": {
+                        "get_resource": "DB2.11421306120483"
+                    },
+                    "volume_id": {
+                        "get_resource": "DB2.11421306120483-Default_add_disk"
+                    }
+                }
+            },
+            "WAS.11421313441283": {
+                "type": "OS::Nova::Server",
+                "properties": {
+                    "admin_pass": "Passw0rd",
+                    "key_name": "heat_key",
+                    "image": "CentOS-6.5-20140219-0.1.4-x86_64_sda-cloud-init",
+                    "user_data": {
+                        "str_replace": {
+                            "params": {
+                                "$MAESTRO_PUBLIC_KEY": {
+                                    "get_param": "MAESTRO_PUBLIC_KEY"
+                                },
+                                "$MAESTRO_AGENT_TOKEN": {
+                                    "get_param": "MAESTRO_AGENT_TOKEN"
+                                },
+                                "$IWD_ENVIRONMENT_PROFILE": {
+                                    "get_param": "IWD_ENVIRONMENT_PROFILE"
+                                },
+                                "$MAESTRO_DEPLOYMENT_URL": {
+                                    "get_param": "MAESTRO_DEPLOYMENT_URL"
+                                },
+                                "$BaseUrl": {
+                                    "get_param": "BaseUrl"
+                                },
+                                "$MAESTRO_SIGNER_PRIVATE_KEY": {
+                                    "get_param": "MAESTRO_SIGNER_PRIVATE_KEY"
+                                },
+                                "$IWD_CLOUD": {
+                                    "get_param": "IWD_CLOUD"
+                                },
+                                "$MAESTRO_KERNELSERVICE_URL": {
+                                    "get_param": "MAESTRO_KERNELSERVICE_URL"
+                                },
+                                "$MAESTRO_SERVER_NAME": "WAS.11421313441283",
+                                "$MAESTRO_LAUNCHED_BY": {
+                                    "get_param": "MAESTRO_LAUNCHED_BY"
+                                },
+                                "$MAESTRO_BOOTSTRAP_URL": {
+                                    "get_param": "MAESTRO_BOOTSTRAP_URL"
+                                },
+                                "$MAESTRO_PURESCALE_APPLIANCE_IPS": {
+                                    "get_param": "MAESTRO_PURESCALE_APPLIANCE_IPS"
+                                },
+                                "$IWD_IP_GROUP": {
+                                    "get_param": "IWD_IP_GROUP"
+                                }
+                            },
+                            "template": {
+                                "get_param": "USER_DATA_TEMPLATE"
+                            }
+                        }
+                    },
+                    "flavor": "m1.small",
+                    "scheduler_hints": {
+                        "group": {
+                            "get_resource": "WAS"
+                        }
+                    }
+                }
+            },
+            "DB2.11421306120483_EIPAssoc": {
+                "type": "OS::Nova::FloatingIPAssociation",
+                "properties": {
+                    "server_id": {
+                        "get_resource": "DB2.11421306120483"
+                    },
+                    "floating_ip": {
+                        "get_resource": "DB2.11421306120483_EIP"
+                    }
+                }
+            },
+            "WAS.11421313441283_EIPAssoc": {
+                "type": "OS::Nova::FloatingIPAssociation",
+                "properties": {
+                    "server_id": {
+                        "get_resource": "WAS.11421313441283"
+                    },
+                    "floating_ip": {
+                        "get_resource": "WAS.11421313441283_EIP"
+                    }
+                }
+            },
+            "WAS.11421306120484_EIPAssoc": {
+                "type": "OS::Nova::FloatingIPAssociation",
+                "properties": {
+                    "server_id": {
+                        "get_resource": "WAS.11421306120484"
+                    },
+                    "floating_ip": {
+                        "get_resource": "WAS.11421306120484_EIP"
+                    }
+                }
+            },
+            "WAS.1422945257_EIPAssoc": {
+                "type": "OS::Nova::FloatingIPAssociation",
+                "properties": {
+                    "server_id": {
+                        "get_resource": "WAS.1422945257"
+                    },
+                    "floating_ip": {
+                        "get_resource": "WAS.1422945257_EIP"
+                    }
+                }
+            },
+            "WAS.1422945257_EIP": {
+                "type": "OS::Nova::FloatingIP"
+            },
+            "WAS.11421313441283_EIP": {
+                "type": "OS::Nova::FloatingIP"
+            },
+            "DB2.11421306120483_EIP": {
+                "type": "OS::Nova::FloatingIP"
+            }
+        }
+    }
+}
